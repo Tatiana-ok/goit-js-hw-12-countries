@@ -10,6 +10,7 @@ import { error } from '@pnotify/core';
 const container = document.querySelector('.container');
 const searchForm = document.querySelector('.js-form');
 
+
 searchForm.addEventListener('input', _.debounce(onSearch, 500));
 
 
@@ -20,13 +21,12 @@ function onSearch(evt) {
     evt.preventDefault();
     form = evt.target;
     searchQuery = evt.target.value;
-
+    
     API.fetchCountries(searchQuery)
     .then(response => {
+      remove()
         if(response.length === 1){
-            const fewCountry = document.querySelector('.few-country');
-            fewCountry.remove();
-            renderCountryCard(response);
+          renderCountryCard(response);
         }
         if(response.length >= 2 && response.length <= 10){
             renderFewCountry(response)
@@ -34,12 +34,24 @@ function onSearch(evt) {
         if(response.length > 10){
             click()
         };
+        
     })
-    // .catch(onFetchError)
+    .catch(onFetchError)
     // .finally(()=> {
     //     form.parentNode.reset();
     // })
 };
+
+function remove() {
+  const fewCountry = document.querySelector('.few-country');
+  const oneCountry = document.querySelector('.one-country');
+  if(oneCountry){
+    oneCountry.remove();
+  };
+  if(fewCountry){
+    fewCountry.remove();
+  };
+}
 
 function renderFewCountry(country) {
     const fewCountryMarkup = fewCountryTpl(country); 
@@ -49,12 +61,12 @@ function renderFewCountry(country) {
 function renderCountryCard (country) {
     const markup = countryCardTpl(country);
     container.insertAdjacentHTML('beforeend', markup);
-    searchForm.addEventListener('change', newSearch);
-    function newSearch(){
-        if(markup){
-            location.reload();
-        };
-    }
+    // searchForm.addEventListener('change', newSearch);
+    // function newSearch(){
+    //     if(markup){
+    //         location.reload();
+    //     };
+    // }
 };
 
 function onFetchError(error) {
